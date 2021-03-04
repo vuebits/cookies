@@ -33,223 +33,76 @@ createApp(App).use(createCookies({ /* your config here */ })).mount('#app');
 
 ```ts
 interface CookiesConfig {
-  hyphenate?: boolean;
+  expireTimes?: string | number | Date;
+  path?: string;
+  domain?: string;
+  secure?: boolean;
+  sameSite?: string;
 }
 ```
 
 ### Vue instance properties and methods:
 
-* `$bem ({ b, e, m }: BemItem): string[]`:
+* `$cookies: Cookies`:
 
 ```ts
-interface BemItem {
-  b?: string;
-  e?: string;
-  m?: string | string[] | {[key in string]: boolean};
+interface Cookies {
+  config(config: CookiesConfig): void;
+  set(keyName: string,
+    value: any,
+    expireTimes?: string | number | Date,
+    path?: string,
+    domain?: string,
+    secure?: boolean,
+    sameSite?: string): this;
+  get(keyName: string): any;
+  remove(keyName: string, path?: string, domain?: string): boolean;
+  isKey(keyName: string): boolean;
+  keys(): string[];
 }
 ```
 
-## Examples
-
-### Using component name by default:
+### Examples
 
 ```vue
 <template>
-  <div :class="$bem({})"> <!-- $bem({}) will return 'hello-world' -->
-    Hello world!
-  </div>
+  <main>
+    <button @click="setCookie">
+      Set cookie "test"
+    </button>
+    <button @click="getCookie">
+      Get cookie "test"
+    </button>
+    <button @click="removeCookie">
+      Remove cookie "test"
+    </button>
+    <div>
+      cookie "test": {{ cookie }}
+    </div>
+  </main>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'hello-world'
-});
-</script>
-
-<style lang="scss">
-.hello-world {
-  // some styles here
-}
-</style>
-
-```
-
-### Using hyphenated component name:
-
-If you use PascalCase naming convence you should init library with `hyphenate` option:
-
-```js
-import { createCookies } from '@vuebits/cookies';
-
-createApp(App).use(createCookies({
-  hyphenate: true
-})).mount('#app');
-```
-
-and then:
-
-```vue
-<template>
-  <div :class="$bem({})"> <!-- returns ['hello-world'] -->
-    Hello world!
-  </div>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'HelloWorld'
-});
-</script>
-
-<style lang="scss">
-.hello-world {
-  // some styles here
-}
-</style>
-
-```
-
-### Custom block name:
-
-```vue
-<template>
-  <div :class="$bem({b: 'custom-block'})"> <!-- returns ['custom-block'] -->
-    Hello world!
-  </div>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'HelloWorld'
-});
-</script>
-
-<style lang="scss">
-.custom-block {
-  // some styles here
-}
-</style>
-
-```
-
-### Element name:
-
-```vue
-<template>
-  <div :class="$bem({})"> <!-- (or $bem({b: 'hello-world'})) - return ['hello-world'] -->
-    <h1 :class="$bem({e: 'title'})"> <!-- (or $bem({b: 'hello-world', e: 'title'})) - returns ['hello-world__title'] -->
-      Hello world!
-    </h1>
-    <p :class="$bem({e: 'description'})"> <!-- (or $bem({b: 'hello-world', e: 'description'})) - returns ['hello-world__description'] -->
-      This is a description
-    </p>
-  </div>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'HelloWorld'
-});
-</script>
-
-<style lang="scss">
-.hello-world {
-  // some styles here
-  &__title {
-    // some styles here
-  }
-  &__description {
-    // some styles here
-  }
-}
-</style>
-
-```
-
-### Inline modfiers:
-
-```vue
-<template>
-  <div :class="$bem({})"> <!-- returns ['hello-world'] -->
-    <p :class="$bem({e: 'text', m: ['underlined']})"> <!-- returns ['hello-world__text', 'hello-world__text--underlined'] -->
-      This is a description
-    </p>
-    <p :class="$bem({e: 'text', m: ['underlined', 'highlighted']})"> <!-- returns ['hello-world__text', 'hello-world__text--underlined', 'hello-world__text--highlighted'] -->
-      This is a description
-    </p>
-  </div>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'HelloWorld'
-});
-</script>
-
-<style lang="scss">
-.hello-world {
-  // some styles here
-  &__text {
-    // some styles here
-    &--underlined {
-      // some styles here
-    }
-    &--highlighted {
-      // some styles here
-    }
-  }
-}
-</style>
-
-```
-
-### Conditional modfiers:
-
-```vue
-<template>
-  <div :class="$bem({})"> <!-- returns ['hello-world'] -->
-    <p :class="$bem({e: 'description', m: {underlined: true, highlighted: isHighlighted}})"> <!-- returns ['hello-world__description', 'hello-world__description--underlined'] -->
-      This is a description
-    </p>
-  </div>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'HelloWorld',
+  name: 'App',
   data () {
     return {
-      isHighlighted: false
+      cookie: null as any
     };
+  },
+  methods: {
+    setCookie (): void {
+      this.$cookies.set('test', 123);
+    },
+    getCookie (): void {
+      this.cookie = this.$cookies.get('test');
+    },
+    removeCookie (): void {
+      this.$cookies.remove('test');
+    }
   }
 });
 </script>
-
-<style lang="scss">
-.hello-world {
-  // some styles here
-  &__description {
-    // some styles here
-    &--underlined {
-      // some styles here
-    }
-    &--highlighted {
-      // some styles here
-    }
-  }
-}
-</style>
-
 ```
